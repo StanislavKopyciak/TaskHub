@@ -1,0 +1,92 @@
+﻿@model TaskHub.Application.DTO.TaskItem.TaskCreateDTO
+
+<div class="container mt-4" style="max-width: 600px;">
+    <h2>Створити нове завдання</h2>
+    <hr />
+
+    <form asp-action="Create" method="post">
+
+        <div class="mb-3">
+            <label class="form-label">Назва</label>
+            <input asp-for="Title" class="form-control" data-val="false" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Опис</label>
+            <textarea asp-for="Description" class="form-control" data-val="false"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Дедлайн</label>
+            <input asp-for="DeadLine" type="datetime-local" class="form-control" data-val="false" />
+            <span asp-validation-for="DeadLine" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Необхідний час (години)</label>
+            <input asp-for="HowMuchTime" type="number" step="0.01" min="0" max="24" class="form-control" data-val="false" />
+            <span asp-validation-for="HowMuchTime" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Пріоритет</label>
+            <select asp-for="Priority" class="form-select" data-val="false">
+                <option value="0">None</option>
+                <option value="1">Low</option>
+                <option value="2">Medium</option>
+                <option value="3">High</option>
+            </select>
+        </div>
+
+        <button class="btn btn-success">Створити</button>
+        <a asp-action="Index" class="btn btn-secondary">Назад</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            $("form").on("submit", function (e) {
+                e.preventDefault(); // не даємо формі перезавантажити сторінку
+
+                // очищаємо старі помилки
+                $(".text-danger").text("");
+
+                $.ajax({
+                    url: "/Task/Create",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            // якщо все ок — переходимо на сторінку завдань
+                            window.location.href = response.redirectUrl;
+                        } else {
+                            // якщо є помилки — показуємо під кожним інпутом
+                            response.errors.forEach(err => {
+                                const field = $(`[name='${err.property}']`);
+                                const validationSpan = field.siblings(".text-danger");
+                                if (validationSpan.length) {
+                                    validationSpan.text(err.message);
+                                } else {
+                                    // якщо чомусь не знайшли span — просто виводимо alert
+                                    console.warn(`Не знайдено span для поля ${err.property}`);
+                                    alert(err.message);
+                                }
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Помилка AJAX:", error);
+                        alert("Сталася помилка під час створення завдання.");
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+

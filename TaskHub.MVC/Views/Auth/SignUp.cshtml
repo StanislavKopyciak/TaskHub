@@ -1,0 +1,75 @@
+﻿@model TaskHub.Application.DTO.User.UserSignUpDTO
+
+<div style="display:flex; flex-direction:column; align-items:center; gap:15px; margin-top:50px;">
+
+    <h2>Створення акаунта</h2>
+
+    <form id="signUpForm" style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+
+        <input asp-for="Name" placeholder="Name" class="form-control" style="width:250px;" />
+        <span id="NameError" class="text-danger"></span>
+
+        <input asp-for="Email" placeholder="Email" type="email" class="form-control" style="width:250px;" />
+        <span id="EmailError" class="text-danger"></span>
+
+        <input asp-for="Password" placeholder="Пароль" type="password" class="form-control" style="width:250px;" />
+        <span id="PasswordError" class="text-danger"></span>
+
+        <input asp-for="ConfirmPassword" placeholder="Підтвердити пароль" type="password" class="form-control" style="width:250px;" />
+        <span id="ConfirmPasswordError" class="text-danger"></span>
+
+        <span id="GeneralError" class="text-danger"></span>
+
+        <button type="submit" class="btn btn-primary" style="width:250px;">Створити</button>
+
+        <a asp-action="SignIn" class="text-primary fw-bold" style="align-self:flex-start;">Вже створено?</a>
+    </form>
+</div>
+
+<script>
+    document.getElementById("signUpForm").addEventListener("submit", async function (e) {
+        e.preventDefault(); // блокуємо перезавантаження
+
+        // очищаємо старі помилки
+        document.getElementById("NameError").textContent = "";
+        document.getElementById("EmailError").textContent = "";
+        document.getElementById("PasswordError").textContent = "";
+        document.getElementById("ConfirmPasswordError").textContent = "";
+        document.getElementById("GeneralError").textContent = "";
+
+        const formData = new FormData(this);
+
+        const response = await fetch("/Auth/SignUp", {
+            method: "POST",
+            body: formData,
+            credentials: "same-origin"
+        });
+
+        const result = await response.json();
+
+        if (result.success === true) {
+            window.location.href = result.redirectUrl;
+            return;
+        }
+
+        // Показуємо помилки
+        if (result.errors) {
+            result.errors.forEach(err => {
+                if (err.property === "Name")
+                    document.getElementById("NameError").textContent = err.message;
+
+                else if (err.property === "Email")
+                    document.getElementById("EmailError").textContent = err.message;
+
+                else if (err.property === "Password")
+                    document.getElementById("PasswordError").textContent = err.message;
+
+                else if (err.property === "ConfirmPassword")
+                    document.getElementById("ConfirmPasswordError").textContent = err.message;
+
+                else
+                    document.getElementById("GeneralError").textContent = err.message;
+            });
+        }
+    });
+</script>

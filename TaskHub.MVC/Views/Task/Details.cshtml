@@ -1,0 +1,39 @@
+﻿@using TaskHub.Core.Enums
+@model TaskHub.Application.DTO.TaskItem.TaskItemDTO
+
+<div class="container mt-4" style="max-width: 600px;">
+    <h2>Інформація про завдання</h2>
+    <hr />
+    <p><strong>Назва:</strong> @Model.Title</p>
+    <p><strong>Опис:</strong> @Model.Description</p>
+    <p><strong>Дедлайн:</strong> @Model.DeadLine</p>
+    <p><strong>Стан:</strong> @Model.State</p>
+    <p><strong>Пріоритет:</strong> @Model.Priority</p>
+    <p><strong>Створено:</strong> @Model.CreatedAt</p>
+    <p><strong>Оновлено:</strong> @Model.UpdatedAt</p>
+
+    <div class="d-flex gap-2 mt-3">
+
+        @if (Model.State != State.Completed)
+        {
+            <form asp-action="Complete" asp-route-id="@Model.Id" method="post" class="m-0 p-0">
+                <button type="submit" class="btn btn-success d-flex align-items-center">
+                    <i class="bi bi-check-circle me-1"></i> Виконано
+                </button>
+            </form>
+
+            <a asp-action="Edit"
+               asp-route-id="@Model.Id"
+               class="btn btn-primary d-flex align-items-center">
+                <i class="bi bi-pencil-square me-1"></i> Редагувати
+            </a>
+        }
+
+
+        <a asp-action="Index"
+           class="btn btn-secondary d-flex align-items-center">
+            <i class="bi bi-arrow-left me-1"></i> Назад
+        </a>
+
+    </div>
+</div>
