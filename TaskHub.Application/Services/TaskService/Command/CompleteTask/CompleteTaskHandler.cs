@@ -1,29 +1,32 @@
 ﻿using MediatR;
+using TaskHub.Application.Services.TaskService.Command.CompleteTask;
 using TaskHub.Core.Entities;
 using TaskHub.Core.Enums;
 using TaskHub.Core.Interfaces;
 
-namespace TaskHub.Application.Services.TaskService.Command.CompleteTask
+public class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCommand, bool>
 {
-    public class CompleteTaskCommandHandler : IRequestHandler<NotCompleteCommand, bool>
+    private readonly ITaskRepository<TaskItem> _taskRepository;
+
+    public CompleteTaskCommandHandler(ITaskRepository<TaskItem> taskRepository)
     {
-        private readonly ITaskRepository<TaskItem> _taskRepository;
+        _taskRepository = taskRepository;
+    }
 
-        public CompleteTaskCommandHandler(ITaskRepository<TaskItem> taskRepository)
-        {
-            _taskRepository = taskRepository;
-        }
+    public async Task<bool> Handle(CompleteTaskCommand request, CancellationToken cancellationToken)
+    {
+        var task = await _taskRepository.GetByIdAsync(request.TaskId);
 
-        public async Task<bool> Handle(NotCompleteCommand request, CancellationToken cancellationToken)
-        {
-            var task = await _taskRepository.GetByIdAsync(request.TaskId);
-            if (task == null)
-                return false;
+        if (task == null)
+            return false;
 
-            task.State = State.Completed;
-            await _taskRepository.UpdateAsync(task.Id, task);
+        if (task.UserId != request.UserId)
+            return false;
 
-            return true;
-        }
+        task.State = State.Completed;
+
+        await _taskRepository.UpdateAsync(task.Id, task);
+
+        return true;
     }
 }

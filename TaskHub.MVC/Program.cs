@@ -27,6 +27,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<TaskHubContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found")));
 
+
+builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<ITaskService, TaskService>();
 builder.Services.AddTransient<IUserService, UserService>();
@@ -63,6 +65,8 @@ builder.Services.AddAuthentication("CookieAuth")
         config.Cookie.Name = "UserSignInCookie";
         config.LoginPath = "/Auth/SignIn";
     });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 

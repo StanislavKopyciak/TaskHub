@@ -22,7 +22,12 @@ namespace TaskHub.Application.Services.TaskService.Command.UpdateTask
         {
             var task = await _taskRepository.GetByIdAsync(command.Id);
 
-            if (task == null)
+            if (task.UserId != command.UserId)
+            {
+                return Results<TaskItemDTO>.Fail("Айді не співпадають");
+            }
+
+                if (task == null)
             {
                 return Results<TaskItemDTO>.Fail("Завдання не знайдено.");
             }

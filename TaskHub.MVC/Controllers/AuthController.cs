@@ -6,9 +6,11 @@ using MediatR;
 using TaskHub.Application.Services.UserService.Auth.Command.SignIn;
 using TaskHub.Infrastructure.HttpCookieService;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskHub.MVC.Controllers
 {
+    [AllowAnonymous]
     public class AuthController : Controller
     {
         private readonly IMapper _mapper;

@@ -20,6 +20,7 @@ namespace TaskHub.Application.Services.TaskService.Command.GetAllTask
         public async Task<IEnumerable<TaskItemDTO>> Handle(GetAllCompletedTasksCommand request, CancellationToken cancellationToken)
         {
             var tasks = await _taskRepository.GetAllByUserIdAsync(request.UserId);
+
             return _mapper.Map<IEnumerable<TaskItemDTO>>(tasks);
         }
     }

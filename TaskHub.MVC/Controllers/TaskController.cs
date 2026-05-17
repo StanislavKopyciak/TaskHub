@@ -20,6 +20,7 @@ using TaskHub.MVC.Models;
 
 namespace TaskHub.MVC.Controllers
 {
+    [Authorize]
     public class TaskController : Controller
     {
         private readonly ILogger<TaskController> _logger;
@@ -73,8 +74,6 @@ namespace TaskHub.MVC.Controllers
             return View(dto);
         }
 
-
-        [Authorize]
         public async Task<IActionResult> Index()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
@@ -90,7 +89,6 @@ namespace TaskHub.MVC.Controllers
             return View(tasks);
         }
 
-        [Authorize]
         public async Task<IActionResult> CompletedList()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
@@ -239,11 +237,12 @@ namespace TaskHub.MVC.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize]
+        
         [HttpPost]
         public async Task<IActionResult> Complete(Guid id)
         {
-            var result = await _mediator.Send(new NotCompleteCommand(id));
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var result = await _mediator.Send(new CompleteTaskCommand(id, userIdString));
 
             if (!result)
                 return NotFound();

@@ -25,6 +25,10 @@ namespace TaskHub.Application.Services.TaskService.Commands.GetTask
         {
             var task = await _taskRepository.GetByIdAsync(command.TaskId);
 
+            if (task.UserId != command.UserId) {
+                return Results<TaskItemDTO>.Fail("Айді не співпадають");
+            }
+
             if (task == null)
             {
                 return Results<TaskItemDTO>.Fail("Завдання не знайдено.");

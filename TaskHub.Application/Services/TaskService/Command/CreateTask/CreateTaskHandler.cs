@@ -29,6 +29,9 @@ namespace TaskHub.Application.Services.TaskService.Command.CreateTask
                 Priority = command.Priority == default ? Priority.None : command.Priority
             };
 
+            if (task.UserId != command.UserId)
+                return Results<TaskItemDTO>.Fail("UserId mismatch.");
+
             var createdTask = await _taskRepository.AddAsync(task.UserId, task);
 
             return Results<TaskItemDTO>.Ok(_mapper.Map<TaskItemDTO>(createdTask));

@@ -18,6 +18,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskHub.Core", "TaskHub.Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskHub.MVC", "TaskHub.MVC\TaskHub.MVC.csproj", "{0B99FD3A-2B80-4F95-A5E3-64E549DD802D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskHub.Test", "TaskHub.Test\TaskHub.Test.csproj", "{447E6F83-4924-4621-96BB-4137CB2DF4BC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,9 +44,16 @@ Global
 		{0B99FD3A-2B80-4F95-A5E3-64E549DD802D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B99FD3A-2B80-4F95-A5E3-64E549DD802D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B99FD3A-2B80-4F95-A5E3-64E549DD802D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{447E6F83-4924-4621-96BB-4137CB2DF4BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{447E6F83-4924-4621-96BB-4137CB2DF4BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{447E6F83-4924-4621-96BB-4137CB2DF4BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{447E6F83-4924-4621-96BB-4137CB2DF4BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{447E6F83-4924-4621-96BB-4137CB2DF4BC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4F36C7FA-5698-4E8D-AC69-484F59337D9C}

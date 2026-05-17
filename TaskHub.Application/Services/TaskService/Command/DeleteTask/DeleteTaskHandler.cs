@@ -20,6 +20,9 @@ public class DeleteTaskHandler : IRequestHandler<DeleteTaskCommand, Results<Task
     {
         var task = await _taskRepository.GetByIdAsync(command.Id);
 
+        if (task.UserId != command.UserId)
+            return Results<TaskItemDTO>.Fail("UserId mismatch.");
+
         if (task == null)
             return Results<TaskItemDTO>.Fail("Завдання не знайдено.");
 
