@@ -14,6 +14,7 @@ using TaskHub.Application.Services.TaskService.Command.GetAllNotCompletedTask;
 using TaskHub.Application.Services.TaskService.Command.GetAllTask;
 using TaskHub.Application.Services.TaskService.Command.UpdateTask;
 using TaskHub.Application.Services.TaskService.Commands.GetTask;
+using TaskHub.Core.Entities;
 using TaskHub.Core.Enums;
 using TaskHub.MVC.Models;
 
@@ -76,14 +77,16 @@ namespace TaskHub.MVC.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-            var userId = Guid.Parse(userIdString);
+            var userId = GetCurrentUserId();
 
-            await _processService.UpdateTaskStateAsync(userId);
+            if (userId is null)
+                return Unauthorized();
+
+            await _processService.UpdateTaskStateAsync(userId.Value);
 
             var tasks = await _mediator.Send(new GetAllCompletedTaskCommand
             {
-                UserId = userId
+                UserId = userId.Value
             });
 
             return View(tasks);
@@ -91,23 +94,19 @@ namespace TaskHub.MVC.Controllers
 
         public async Task<IActionResult> CompletedList()
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-            var userId = Guid.Parse(userIdString);
+            var userId = GetCurrentUserId();
 
-            await _processService.UpdateTaskStateAsync(userId);
+            if (userId is null)
+                return Unauthorized();
+
+            await _processService.UpdateTaskStateAsync(userId.Value);
 
             var tasks = await _mediator.Send(new GetAllNotCompletedTaskCommand
             {
-                UserId = userId
+                UserId = userId.Value
             });
 
             return View(tasks);
-        }
-
-
-        public IActionResult Privacy()
-        {
-            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -121,10 +120,25 @@ namespace TaskHub.MVC.Controllers
         {
             try
             {
-                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                if (dto is null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        errors = new[]
+                        {
+                            new { property = "", message = "Дані завдання не були передані." }
+                        }
+                    });
+                }
+
+                var userId = GetCurrentUserId();
+
+                if (userId is null)
+                    return Unauthorized();
 
                 var command = _mapper.Map<CreateTaskCommand>(dto);
-                command.UserId = userId;
+                command.UserId = userId.Value;
 
                 var validationResult = await _validatorTaskCreate.ValidateAsync(command);
 
@@ -149,9 +163,9 @@ namespace TaskHub.MVC.Controllers
                     {
                         success = false,
                         errors = new[] { new {
-                    property = "",
-                    message = result.Error
-                }}
+                            property = "",
+                            message = result.Error
+                        }}
                     });
                 }
 
@@ -172,29 +186,50 @@ namespace TaskHub.MVC.Controllers
             }
         }
 
-        [HttpGet("/Task/Details")]
+        [HttpGet("/Task/Details/{id:guid}")]
         public async Task<IActionResult> Details(Guid id)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            if (id == Guid.Empty)
+                return BadRequest("Некоректний id завдання.");
+
+            var userId = GetCurrentUserId();
+
+            if (userId is null)
+                return Unauthorized();
 
             var result = await _mediator.Send(new GetTaskCommand
             {
                 TaskId = id,
-                UserId = userId
+                UserId = userId.Value
             });
 
             if (!result.Success)
                 return NotFound(result.Error);
 
-            return View(result.Value); 
+            return View(result.Value);
         }
 
-        [HttpPatch("/Task/Edit")]
+        [HttpPatch("/Task/Edit/")]
         public async Task<IActionResult> Edit(TaskItemDTO dto)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            if (dto is null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = new[]
+                    {
+                        new { property = "", message = "Дані завдання не були передані." }
+                    }
+                });
+            }
+            var userId = GetCurrentUserId();
+
+            if (userId is null)
+                return Unauthorized();
+
             var command = _mapper.Map<UpdateTaskCommand>(dto);
-            command.UserId = userId;
+            command.UserId = userId.Value;
 
             var validationResult = await _validatorTaskUpdate.ValidateAsync(command);
             if (!validationResult.IsValid)
@@ -219,6 +254,12 @@ namespace TaskHub.MVC.Controllers
         [HttpPost("/Task/Delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                TempData["Error"] = "Некоректний id завдання.";
+                return RedirectToAction("Index");
+            }
+
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
             var result = await _mediator.Send(new DeleteTaskCommand
@@ -241,6 +282,9 @@ namespace TaskHub.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Complete(Guid id)
         {
+            if (id == Guid.Empty)
+                return BadRequest("Некоректний id завдання.");
+
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             var result = await _mediator.Send(new CompleteTaskCommand(id, userIdString));
 
@@ -250,5 +294,22 @@ namespace TaskHub.MVC.Controllers
             return RedirectToAction("Index");
         }
 
+
+        private Guid? GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrWhiteSpace(userIdClaim))
+                return null;
+
+            if (!Guid.TryParse(userIdClaim, out var userId))
+                return null;
+
+            return userId;
+        }
     }
 }
+
+
+
+

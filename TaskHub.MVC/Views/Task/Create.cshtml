@@ -51,9 +51,7 @@
     <script>
         $(document).ready(function () {
             $("form").on("submit", function (e) {
-                e.preventDefault(); // не даємо формі перезавантажити сторінку
-
-                // очищаємо старі помилки
+                e.preventDefault(); 
                 $(".text-danger").text("");
 
                 $.ajax({
@@ -62,17 +60,14 @@
                     data: $(this).serialize(),
                     success: function (response) {
                         if (response.success) {
-                            // якщо все ок — переходимо на сторінку завдань
                             window.location.href = response.redirectUrl;
                         } else {
-                            // якщо є помилки — показуємо під кожним інпутом
                             response.errors.forEach(err => {
                                 const field = $(`[name='${err.property}']`);
                                 const validationSpan = field.siblings(".text-danger");
                                 if (validationSpan.length) {
                                     validationSpan.text(err.message);
                                 } else {
-                                    // якщо чомусь не знайшли span — просто виводимо alert
                                     console.warn(`Не знайдено span для поля ${err.property}`);
                                     alert(err.message);
                                 }

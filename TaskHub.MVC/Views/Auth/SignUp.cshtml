@@ -28,9 +28,7 @@
 
 <script>
     document.getElementById("signUpForm").addEventListener("submit", async function (e) {
-        e.preventDefault(); // блокуємо перезавантаження
-
-        // очищаємо старі помилки
+        e.preventDefault(); 
         document.getElementById("NameError").textContent = "";
         document.getElementById("EmailError").textContent = "";
         document.getElementById("PasswordError").textContent = "";
@@ -52,7 +50,6 @@
             return;
         }
 
-        // Показуємо помилки
         if (result.errors) {
             result.errors.forEach(err => {
                 if (err.property === "Name")

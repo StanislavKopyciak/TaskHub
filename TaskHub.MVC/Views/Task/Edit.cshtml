@@ -53,13 +53,13 @@
         $(document).ready(function () {
             $("#editTaskForm").on("submit", function (e) {
                 e.preventDefault();
-                $(".text-danger").text(""); // очищаємо старі помилки
+                $(".text-danger").text(""); 
 
                 const formData = $(this).serialize();
 
                 $.ajax({
                     url: "/Task/Edit",
-                    type: "PATCH", // робимо PATCH
+                    type: "PATCH", 
                     data: formData,
                     success: function (response) {
                         if (response.success) {

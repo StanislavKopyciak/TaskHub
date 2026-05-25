@@ -5,3 +5,5 @@ obj/
 *.suo
 *.cache
 *.log
+.env
+appsettings.Development.json

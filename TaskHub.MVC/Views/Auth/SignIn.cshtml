@@ -21,14 +21,12 @@
 
 <script>
     document.getElementById("signInForm").addEventListener("submit", async function (e) {
-        e.preventDefault(); // блокуємо перезавантаження сторінки
+        e.preventDefault(); 
 
-        // очищаємо старі помилки
         document.getElementById("EmailError").textContent = "";
         document.getElementById("PasswordError").textContent = "";
         document.getElementById("GeneralError").textContent = "";
 
-        // збираємо дані з форми
         const formData = new FormData(this);
 
         const response = await fetch("/Auth/SignIn", {
@@ -40,12 +38,9 @@
         const result = await response.json();
 
         if (result.success === true) {
-            // успішний логін -> редірект
             window.location.href = result.redirectUrl;
             return;
         }
-
-        // виводимо помилки
         if (result.errors) {
             result.errors.forEach(err => {
                 if (err.property === "Email")

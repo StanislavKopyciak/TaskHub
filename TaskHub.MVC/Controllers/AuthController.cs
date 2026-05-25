@@ -32,8 +32,9 @@ namespace TaskHub.MVC.Controllers
             _signUpValidator = signUpValidator;
             _signInValidator = signInValidator;
         }
-
+        [HttpGet]
         public IActionResult SignIn() => View();
+        [HttpGet]
         public IActionResult SignUp() => View();
 
         [HttpPost("/Auth/SignUp")]
