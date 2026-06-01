@@ -1,7 +1,7 @@
 ﻿using TaskHub.Core.Entities;
 using TaskHub.Core.Enums;
 
-namespace TaskHub.Core.Interfaces
+namespace TaskHub.Application.Interfaces
 {
     public interface ITaskRepository<T> : IRepository<T> where T : TaskItem
     {

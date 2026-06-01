@@ -1,4 +1,4 @@
-﻿namespace TaskHub.Application.Services.UserService.Auth
+﻿namespace TaskHub.Application.Interfaces
 {
     public interface IPasswordHasher
     {

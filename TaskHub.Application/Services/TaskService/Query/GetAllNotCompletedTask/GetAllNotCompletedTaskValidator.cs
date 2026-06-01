@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TaskHub.Application.Services.TaskService.Command.GetAllNotCompletedTask
+namespace TaskHub.Application.Services.TaskService.Query.GetAllNotCompletedTask
 {
-    public class GetAllNotCompletedTaskValidator : AbstractValidator<GetAllNotCompletedTaskCommand>
+    public class GetAllNotCompletedTaskValidator : AbstractValidator<GetAllNotCompletedTaskQuery>
     {
         public GetAllNotCompletedTaskValidator()
         {

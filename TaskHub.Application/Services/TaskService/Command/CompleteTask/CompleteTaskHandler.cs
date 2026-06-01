@@ -1,8 +1,9 @@
 ﻿using MediatR;
+using TaskHub.Application.Interfaces;
 using TaskHub.Application.Services.TaskService.Command.CompleteTask;
 using TaskHub.Core.Entities;
 using TaskHub.Core.Enums;
-using TaskHub.Core.Interfaces;
+
 
 public class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCommand, bool>
 {

@@ -2,8 +2,8 @@
 using MediatR;
 using TaskHub.Application.Common;
 using TaskHub.Application.DTO.TaskItem;
+using TaskHub.Application.Interfaces;
 using TaskHub.Core.Entities;
-using TaskHub.Core.Interfaces;
 
 public class DeleteTaskHandler : IRequestHandler<DeleteTaskCommand, Results<TaskItemDTO>>
 {

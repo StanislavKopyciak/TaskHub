@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using TaskHub.Application.Interfaces;
 using TaskHub.Core.Entities;
 using TaskHub.Core.Enums;
-using TaskHub.Core.Interfaces;
 
 namespace TaskHub.Application.Services.TaskService
 {

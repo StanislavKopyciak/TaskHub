@@ -1,20 +1,13 @@
 ﻿using AutoMapper;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TaskHub.Application.DTO.TaskItem;
-using TaskHub.Application.Services.TaskService.Command.GetAllCompletedTask;
-using TaskHub.Application.Services.TaskService.Command.GetAllTask;
+using TaskHub.Application.Interfaces;
 using TaskHub.Core.Entities;
-using TaskHub.Core.Interfaces;
 
-namespace TaskHub.Application.Services.TaskService.Command.GetAllNotCompletedTask
+namespace TaskHub.Application.Services.TaskService.Query.GetAllNotCompletedTask
 {
     public class GetAllNotCompletedTaskHandler
-        : IRequestHandler<GetAllNotCompletedTaskCommand, IEnumerable<TaskItemDTO>>
+        : IRequestHandler<GetAllNotCompletedTaskQuery, IEnumerable<TaskItemDTO>>
     {
         private readonly IMapper _mapper;
         private readonly ITaskRepository<TaskItem> _taskRepository;
@@ -25,7 +18,7 @@ namespace TaskHub.Application.Services.TaskService.Command.GetAllNotCompletedTas
             _taskRepository = taskRepository;
         }
 
-        public async Task<IEnumerable<TaskItemDTO>> Handle(GetAllNotCompletedTaskCommand request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<TaskItemDTO>> Handle(GetAllNotCompletedTaskQuery request, CancellationToken cancellationToken)
         {
 
             var tasks = await _taskRepository.GetAllByUserIdAndStateAsync(request.UserId, request.State);

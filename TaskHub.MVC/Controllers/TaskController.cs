@@ -9,13 +9,10 @@ using TaskHub.Application.DTO.TaskItem;
 using TaskHub.Application.Services.TaskService;
 using TaskHub.Application.Services.TaskService.Command.CompleteTask;
 using TaskHub.Application.Services.TaskService.Command.CreateTask;
-using TaskHub.Application.Services.TaskService.Command.GetAllCompletedTask;
-using TaskHub.Application.Services.TaskService.Command.GetAllNotCompletedTask;
-using TaskHub.Application.Services.TaskService.Command.GetAllTask;
 using TaskHub.Application.Services.TaskService.Command.UpdateTask;
-using TaskHub.Application.Services.TaskService.Commands.GetTask;
-using TaskHub.Core.Entities;
-using TaskHub.Core.Enums;
+using TaskHub.Application.Services.TaskService.Query.GetAllCompletedTask;
+using TaskHub.Application.Services.TaskService.Query.GetAllNotCompletedTask;
+using TaskHub.Application.Services.TaskService.Query.GetTask;
 using TaskHub.MVC.Models;
 
 
@@ -58,7 +55,7 @@ namespace TaskHub.MVC.Controllers
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-            var command = new GetTaskCommand
+            var command = new GetTaskQuery
             {
                 TaskId = id,
                 UserId = userId
@@ -84,7 +81,7 @@ namespace TaskHub.MVC.Controllers
 
             await _processService.UpdateTaskStateAsync(userId.Value);
 
-            var tasks = await _mediator.Send(new GetAllCompletedTaskCommand
+            var tasks = await _mediator.Send(new GetAllCompletedTaskQuery
             {
                 UserId = userId.Value
             });
@@ -101,7 +98,7 @@ namespace TaskHub.MVC.Controllers
 
             await _processService.UpdateTaskStateAsync(userId.Value);
 
-            var tasks = await _mediator.Send(new GetAllNotCompletedTaskCommand
+            var tasks = await _mediator.Send(new GetAllNotCompletedTaskQuery
             {
                 UserId = userId.Value
             });
@@ -197,7 +194,7 @@ namespace TaskHub.MVC.Controllers
             if (userId is null)
                 return Unauthorized();
 
-            var result = await _mediator.Send(new GetTaskCommand
+            var result = await _mediator.Send(new GetTaskQuery
             {
                 TaskId = id,
                 UserId = userId.Value

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
+using TaskHub.Application.Interfaces;
 using TaskHub.Core.Model;
 
 namespace TaskHub.Application.Services.UserService.Auth

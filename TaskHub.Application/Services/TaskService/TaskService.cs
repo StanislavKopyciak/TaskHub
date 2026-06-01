@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using TaskHub.Application.DTO.TaskItem;
+using TaskHub.Application.Interfaces;
 using TaskHub.Core.Entities;
-using TaskHub.Core.Enums;
-using TaskHub.Core.Interfaces;
 
 namespace TaskHub.Application.Services.TaskService
 {

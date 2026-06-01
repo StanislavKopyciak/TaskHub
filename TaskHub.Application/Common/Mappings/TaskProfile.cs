@@ -2,8 +2,8 @@
 using TaskHub.Application.DTO.TaskItem;
 using TaskHub.Application.DTO.User;
 using TaskHub.Application.Services.TaskService.Command.CreateTask;
-using TaskHub.Application.Services.TaskService.Command.GetAllCompletedTask;
 using TaskHub.Application.Services.TaskService.Command.UpdateTask;
+using TaskHub.Application.Services.TaskService.Query.GetAllCompletedTask;
 using TaskHub.Application.Services.UserService.Auth.Command.SignIn;
 using TaskHub.Application.Services.UserService.Auth.Command.SignUp;
 using TaskHub.Core.Entities;
@@ -29,7 +29,7 @@ namespace TaskHub.Application.Common.Mappings
             CreateMap<CreateTaskCommand, TaskItem>();
             CreateMap<UpdateTaskCommand, TaskItem>();
 
-            CreateMap<GetAllCompletedTaskCommand, TaskItem>();
+            CreateMap<GetAllCompletedTaskQuery, TaskItem>();
            
         }
     }

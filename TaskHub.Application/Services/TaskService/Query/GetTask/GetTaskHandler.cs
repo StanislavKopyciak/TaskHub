@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
 using MediatR;
-using System.Threading.Tasks;
 using TaskHub.Application.Common;
 using TaskHub.Application.DTO.TaskItem;
+using TaskHub.Application.Interfaces;
 using TaskHub.Core.Entities;
-using TaskHub.Core.Interfaces;
 
-namespace TaskHub.Application.Services.TaskService.Commands.GetTask
+namespace TaskHub.Application.Services.TaskService.Query.GetTask
 {
-    public class GetTaskHandler : IRequestHandler<GetTaskCommand, Results<TaskItemDTO>>
+    public class GetTaskHandler : IRequestHandler<GetTaskQuery, Results<TaskItemDTO>>
     {
         private readonly ITaskRepository<TaskItem> _taskRepository;
         private readonly IMapper _mapper;
@@ -21,7 +20,7 @@ namespace TaskHub.Application.Services.TaskService.Commands.GetTask
             _mapper = mapper;
         }
 
-        public async Task<Results<TaskItemDTO>> Handle(GetTaskCommand command, CancellationToken ct)
+        public async Task<Results<TaskItemDTO>> Handle(GetTaskQuery command, CancellationToken ct)
         {
             var task = await _taskRepository.GetByIdAsync(command.TaskId);
 

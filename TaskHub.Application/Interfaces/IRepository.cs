@@ -1,6 +1,6 @@
-﻿using TaskHub.Core.Entities;
+﻿
 
-namespace TaskHub.Core.Interfaces
+namespace TaskHub.Application.Interfaces
 {
     public interface IRepository<T> 
     {

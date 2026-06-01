@@ -1,6 +1,6 @@
 ﻿using TaskHub.Application.DTO.User;
+using TaskHub.Application.Interfaces;
 using TaskHub.Core.Entities;
-using TaskHub.Core.Interfaces;
 
 namespace TaskHub.Application.Services.UserService
 {

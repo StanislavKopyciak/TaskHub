@@ -1,6 +1,5 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using System.Configuration;
 using TaskHub.Application.Common.Mappings;
 using TaskHub.Application.Services.TaskService;
 using TaskHub.Application.Services.TaskService.Command.CreateTask;
@@ -10,14 +9,13 @@ using TaskHub.Application.Services.UserService.Auth;
 using TaskHub.Application.Services.UserService.Auth.Command.SignIn;
 using TaskHub.Application.Services.UserService.Auth.Command.SignUp;
 using TaskHub.Core.Entities;
-using TaskHub.Core.Interfaces;
-using TaskHub.Core.Model;
 using TaskHub.Infrastructure.Data;
 using TaskHub.Infrastructure.Data.Repository;
-using TaskHub.Application.Services.TaskService.Commands.GetTask;
 using TaskHub.Infrastructure.HttpCookieService;
-using TaskHub.Application.Services.TaskService.Command.GetAllCompletedTask;
-using TaskHub.Application.Services.TaskService.Command.GetAllNotCompletedTask;
+using TaskHub.Application.Interfaces;
+using TaskHub.Application.Services.TaskService.Query.GetTask;
+using TaskHub.Application.Services.TaskService.Query.GetAllNotCompletedTask;
+using TaskHub.Application.Services.TaskService.Query.GetAllCompletedTask;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,8 +52,8 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblyContaining<GetTaskHandler>();
     cfg.RegisterServicesFromAssemblyContaining<DeleteTaskHandler>();
     cfg.RegisterServicesFromAssemblyContaining<UpdateTaskHandler>();
-    cfg.RegisterServicesFromAssemblyContaining<GetAllCompletedTaskCommand>();
-    cfg.RegisterServicesFromAssemblyContaining<GetAllNotCompletedTaskCommand>();
+    cfg.RegisterServicesFromAssemblyContaining<GetAllCompletedTaskQuery>();
+    cfg.RegisterServicesFromAssemblyContaining<GetAllNotCompletedTaskQuery>();
 });
 
 

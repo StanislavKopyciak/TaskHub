@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using MediatR;
 using TaskHub.Application.DTO.TaskItem;
+using TaskHub.Application.Interfaces;
 using TaskHub.Core.Entities;
-using TaskHub.Core.Interfaces;
 
-namespace TaskHub.Application.Services.TaskService.Command.GetAllTask
+namespace TaskHub.Application.Services.TaskService.Query.GetAllTask
 {
     public class GetAllTasksHandler : IRequestHandler<GetAllCompletedTasksCommand, IEnumerable<TaskItemDTO>>
     {

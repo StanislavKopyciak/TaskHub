@@ -1,9 +1,9 @@
 ﻿
 using FluentValidation;
 
-namespace TaskHub.Application.Services.TaskService.Command.GetAllCompletedTask
+namespace TaskHub.Application.Services.TaskService.Query.GetAllCompletedTask
 {
-    public class GetAllCompletedTaskValidator : AbstractValidator<GetAllCompletedTaskCommand>
+    public class GetAllCompletedTaskValidator : AbstractValidator<GetAllCompletedTaskQuery>
     {
         public GetAllCompletedTaskValidator()
         {

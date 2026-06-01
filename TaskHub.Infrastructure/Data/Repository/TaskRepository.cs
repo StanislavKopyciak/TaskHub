@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
+using TaskHub.Application.Interfaces;
 using TaskHub.Core.Entities;
 using TaskHub.Core.Enums;
-using TaskHub.Core.Interfaces;
+
 
 namespace TaskHub.Infrastructure.Data.Repository
 {

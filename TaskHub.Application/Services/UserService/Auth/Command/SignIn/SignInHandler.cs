@@ -2,8 +2,8 @@
 using TaskHub.Application.Common;
 using TaskHub.Application.DTO.User;
 using TaskHub.Core.Entities;
-using TaskHub.Core.Interfaces;
 using MediatR;
+using TaskHub.Application.Interfaces;
 
 namespace TaskHub.Application.Services.UserService.Auth.Command.SignIn
 {
@@ -21,18 +21,23 @@ namespace TaskHub.Application.Services.UserService.Auth.Command.SignIn
 
         public async Task<Results<UserDTO>> Handle(SignInCommand command, CancellationToken ct)
         {
-            var userGet = await _userRepository.GetByEmailAsync(command.Email);
+            var email = command.Email.Trim().ToLower();
 
-            if (userGet == null || string.IsNullOrEmpty(userGet.Password))
-            {
-                return Results<UserDTO>.Fail("Невірний email або пароль");
-            }
-            if (!_passwordHasher.Verify(command.Password, userGet.Password))
+            var user = await _userRepository.GetByEmailAsync(email);
+
+            if (user == null || string.IsNullOrWhiteSpace(user.Password))
             {
                 return Results<UserDTO>.Fail("Невірний email або пароль");
             }
 
-            return Results<UserDTO>.Ok(_mapper.Map<UserDTO>(userGet));
+            var isPasswordValid = _passwordHasher.Verify(command.Password, user.Password);
+
+            if (!isPasswordValid)
+            {
+                return Results<UserDTO>.Fail("Невірний email або пароль");
+            }
+
+            return Results<UserDTO>.Ok(_mapper.Map<UserDTO>(user));
         }
     }
 }
