@@ -10,9 +10,9 @@ namespace TaskHub.Application.Services.TaskService.Command.CreateTask
 {
     public class CreateTaskHandler : IRequestHandler<CreateTaskCommand, Results<TaskItemDTO>>
     {
-        private readonly ITaskRepository<TaskItem> _taskRepository;
+        private readonly ITaskRepository _taskRepository;
         private readonly IMapper _mapper;
-        public CreateTaskHandler(ITaskRepository<TaskItem> taskRepository, IMapper mapper)
+        public CreateTaskHandler(ITaskRepository taskRepository, IMapper mapper)
         {
             _taskRepository = taskRepository;
             _mapper = mapper;
@@ -20,21 +20,16 @@ namespace TaskHub.Application.Services.TaskService.Command.CreateTask
 
         public async Task<Results<TaskItemDTO>> Handle(CreateTaskCommand command, CancellationToken ct)
         {
-            var task = new TaskItem
-            {
-                UserId = command.UserId,
-                Title = command.Title,
-                Description = command.Description ?? string.Empty,
-                DeadLine = command.DeadLine == default ? DateTime.Now.AddDays(1) : command.DeadLine,
-                Priority = command.Priority == default ? Priority.None : command.Priority
-            };
+            var task = _mapper.Map<TaskItem>(command);
 
             if (task.UserId != command.UserId)
                 return Results<TaskItemDTO>.Fail("UserId mismatch.");
 
-            var createdTask = await _taskRepository.AddAsync(task.UserId, task);
+            var createdTask = await _taskRepository.AddAsync(task, ct);
 
-            return Results<TaskItemDTO>.Ok(_mapper.Map<TaskItemDTO>(createdTask));
+            var taskDto = _mapper.Map<TaskItemDTO>(createdTask);
+
+            return Results<TaskItemDTO>.Ok(taskDto);
         }
     }
 }

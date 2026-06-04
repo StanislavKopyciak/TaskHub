@@ -2,6 +2,10 @@
 
 namespace TaskHub.Application.Services.TaskService.Command.NotCompleteTask
 {
-    public record NotCompleteTaskCommand(Guid TaskId, Guid UserId) : IRequest<bool>;
+    public record NotCompleteTaskCommand : IRequest<bool>
+    {
+        public Guid TaskId { get; set; }
+        public Guid UserId { get; set; }
+    }
 
 }

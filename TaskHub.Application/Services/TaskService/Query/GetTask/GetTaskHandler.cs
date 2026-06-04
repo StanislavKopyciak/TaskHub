@@ -9,20 +9,20 @@ namespace TaskHub.Application.Services.TaskService.Query.GetTask
 {
     public class GetTaskHandler : IRequestHandler<GetTaskQuery, Results<TaskItemDTO>>
     {
-        private readonly ITaskRepository<TaskItem> _taskRepository;
+        private readonly ITaskRepository _taskRepository;
         private readonly IMapper _mapper;
 
         public GetTaskHandler(
-            ITaskRepository<TaskItem> taskRepository,
+            ITaskRepository repository,
             IMapper mapper)
         {
-            _taskRepository = taskRepository;
+            _taskRepository = repository;
             _mapper = mapper;
         }
 
         public async Task<Results<TaskItemDTO>> Handle(GetTaskQuery command, CancellationToken ct)
         {
-            var task = await _taskRepository.GetByIdAsync(command.TaskId);
+            var task = await _taskRepository.GetByIdAsync(command.TaskId, ct);
 
             if (task.UserId != command.UserId) {
                 return Results<TaskItemDTO>.Fail("Айді не співпадають");

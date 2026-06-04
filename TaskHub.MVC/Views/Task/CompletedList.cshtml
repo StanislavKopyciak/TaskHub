@@ -46,10 +46,10 @@
                     @Html.DisplayFor(modelItem => item.CreatedAt)
                 </td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    <a asp-action="Details" asp-route-id="@item.Id">Детальніше</a>
                     <form asp-action="Delete" method="post" class="d-inline">
                         <input type="hidden" name="id" value="@item.Id" />
-                        <button type="submit" class="btn btn-link p-0 align-baseline">Delete</button>
+                        <button type="submit" class="btn btn-link p-0 align-baseline">Видалити</button>
                     </form>
                 </td>
 

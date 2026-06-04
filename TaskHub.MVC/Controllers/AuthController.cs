@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using TaskHub.Application.Services.UserService.Auth.Command.SignUp;
-using TaskHub.Application.DTO.User;
-using MediatR;
-using TaskHub.Application.Services.UserService.Auth.Command.SignIn;
-using TaskHub.Infrastructure.HttpCookieService;
 using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using TaskHub.Application.DTO.User;
+using TaskHub.Application.Services.UserService.Auth.Command.SignIn;
+using TaskHub.Application.Services.UserService.Auth.Command.SignUp;
+using TaskHub.Application.Services.UserService.Auth.Command.VerifyEmail;
+using TaskHub.MVC.HttpCookieService;
 
 namespace TaskHub.MVC.Controllers
 {
@@ -36,6 +37,8 @@ namespace TaskHub.MVC.Controllers
         public IActionResult SignIn() => View();
         [HttpGet]
         public IActionResult SignUp() => View();
+        [HttpGet]
+        public IActionResult VerifyEmail() => View();
 
         [HttpPost("/Auth/SignUp")]
         public async Task<IActionResult> SignUp(UserSignUpDTO dto)
@@ -71,12 +74,11 @@ namespace TaskHub.MVC.Controllers
                 });
             }
 
-            await _cookieService.SetCookieAsync(result.Value!);
 
             return Json(new
             {
                 success = true,
-                redirectUrl = Url.Action("Index", "Task")
+                redirectUrl = Url.Action("VerifyEmail", "Auth")
             });
         }
 
@@ -114,7 +116,10 @@ namespace TaskHub.MVC.Controllers
                 });
             }
 
-            await _cookieService.SetCookieAsync(result.Value!);
+            if (result.Value?.Token != null)
+            {
+                _cookieService.SetCookie(result.Value.Token);
+            }
 
             return Json(new
             {
@@ -123,10 +128,46 @@ namespace TaskHub.MVC.Controllers
             });
         }
 
-        [HttpPost("/Auth/SignOut")]
-        public async Task<IActionResult> SignOut()
+        [HttpPost("/Auth/VerifyEmail")]
+        public async Task<IActionResult> VerifyEmail(VerifyEmailDTO dto)
         {
-            await _cookieService.SignOutAsync();
+            var command = _mapper.Map<VerifyEmailCommand>(dto);
+
+            var result = await _mediator.Send(command);
+
+            if (!result.Success)
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = new[]
+                    {
+                        new {
+                            property = "Code",
+                            message = result.Error
+                        }
+                    }
+                });
+            }
+
+            if (result.Value?.Token != null)
+            {
+                _cookieService.SetCookie(result.Value.Token);
+            }
+
+            return Json(new
+            {
+                success = true,
+                redirectUrl = Url.Action("Index", "Task")
+            });
+        }
+
+
+
+        [HttpPost("/Auth/SignOut")]
+        public new IActionResult SignOut()
+        {
+            _cookieService.SignOut();
             return RedirectToAction("SignIn", "Auth");
         }
     }

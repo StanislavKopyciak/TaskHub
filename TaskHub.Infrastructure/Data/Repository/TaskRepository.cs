@@ -6,7 +6,7 @@ using TaskHub.Core.Enums;
 
 namespace TaskHub.Infrastructure.Data.Repository
 {
-    public class TaskRepository : ITaskRepository<TaskItem>
+    public class TaskRepository : ITaskRepository
     {
         private readonly TaskHubContext _context;
 
@@ -15,67 +15,56 @@ namespace TaskHub.Infrastructure.Data.Repository
             _context = context;
         }
 
-        public async Task<TaskItem> AddAsync(Guid id, TaskItem item)
-        {
-            item.UserId = id;
-            item.Id = Guid.NewGuid();
-            item.CreatedAt = DateTime.Now;
-            item.UpdatedAt = DateTime.Now;
-
-            await _context.Tasks.AddAsync(item);   
-            await _context.SaveChangesAsync();
-            return item;
-        }
-
-        public async Task<int> DeleteAsync(Guid id)
-        {
-            return await _context.Tasks
-                .Where(t => t.Id == id)
-                .ExecuteDeleteAsync();
-        }
-
-        public async Task<IEnumerable<TaskItem>> GetAllByUserIdAsync(Guid userId)
-        {
-            var task = await _context.Tasks
-                .Where(n => n.UserId == userId)
-                .ToListAsync();
-            return task;
-        }
-
-        public async Task<IEnumerable<TaskItem>> GetAllByUserIdAndStateAsync(Guid userId, State state)
+        public async Task<IEnumerable<TaskItem>> GetAllByUserIdAndStateAsync(Guid userId, State state, CancellationToken ct)
         {
             return await _context.Tasks
                 .Where(x => x.UserId == userId && x.State == state)
-                .ToListAsync();
+                .ToListAsync(ct);
         }
 
-
-
-        public async Task<TaskItem> GetByIdAsync(Guid id)
+        public async Task<IEnumerable<TaskItem>> GetAllByUserIdAsync(Guid userId, CancellationToken ct)
         {
-            var task = await _context.Tasks.FindAsync(id);
-            if (task == null)
-                throw new InvalidOperationException($"Task with id {id} not found.");
+            return await _context.Tasks
+                .Where(n => n.UserId == userId)
+                .ToListAsync(ct);
+        }
+
+        public async Task<TaskItem> GetByIdAsync(Guid id, CancellationToken ct)
+        {
+            var task = await _context.Tasks.FirstOrDefaultAsync(u => u.Id == id, ct);
+
             return task;
         }
 
-        public async Task<int> UpdateAsync(Guid id, TaskItem item)
+        public async Task<TaskItem> AddAsync(TaskItem item, CancellationToken ct)
+        {
+            item.UpdatedAt = DateTime.Now;
+
+            await _context.Tasks.AddAsync(item, ct);
+            await _context.SaveChangesAsync(ct);
+            return item;
+        }
+
+        public async Task<int> UpdateAsync(TaskItem item, CancellationToken ct)
         {
             return await _context.Tasks
-                .Where(t => t.Id == id)
+                .Where(t => t.Id == item.Id)
                 .ExecuteUpdateAsync(t => t
                     .SetProperty(t => t.Title, item.Title)
                     .SetProperty(t => t.Description, item.Description)
                     .SetProperty(t => t.State, item.State)
                     .SetProperty(t => t.UpdatedAt, DateTime.Now)
                     .SetProperty(t => t.Priority, item.Priority)
-                    .SetProperty(t => t.DeadLine, item.DeadLine)
+                    .SetProperty(t => t.DeadLine, item.DeadLine),
+                    ct
                 );
         }
 
-        Task<TaskItem> IRepository<TaskItem>.AddAsync(TaskItem entity)
+        public async Task<int> DeleteAsync(Guid id, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            return await _context.Tasks
+                .Where(t => t.Id == id)
+                .ExecuteDeleteAsync(ct);
         }
     }
 }

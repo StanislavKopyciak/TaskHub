@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using System.Security.Cryptography;
 using TaskHub.Application.Common;
 using TaskHub.Application.DTO.User;
 using TaskHub.Application.Interfaces;
@@ -7,40 +8,90 @@ using TaskHub.Core.Entities;
 
 namespace TaskHub.Application.Services.UserService.Auth.Command.SignUp
 {
-    public class SignUpHandler : IRequestHandler<SignUpCommand, Results<UserDTO>>
+    public class SignUpHandler : IRequestHandler<SignUpCommand, Results<AuthResult>>
     {
-        private readonly IUserRepository<User> _userRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IMapper _mapper;
+        private readonly IJwtService _jwtService;
+        private readonly IEmailService _emailService;
+        private readonly IEmailVerificationRepository _emailVerificationRepository;
 
-        public SignUpHandler(IUserRepository<User> userRepository, IPasswordHasher passwordHasher, IMapper mapper)
+        public SignUpHandler
+            (
+            IUserRepository userRepository, 
+            IPasswordHasher passwordHasher,
+            IMapper mapper,
+            IJwtService jwtService,
+            IEmailService emailService,
+            IEmailVerificationRepository emailVerificationRepository
+            )
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _mapper = mapper;
-        }
-
-        public async Task<Results<UserDTO>> Handle(SignUpCommand command, CancellationToken ct)
-        {
-            var userGet = await _userRepository.GetByEmailAsync(command.Email);
-
-            if (userGet != null)
-            {
-                return Results<UserDTO>.Fail("Почта Email вже використовується");
+            _jwtService = jwtService;
+            _emailService = emailService;
+            _emailVerificationRepository = emailVerificationRepository;
             }
 
+        public async Task<Results<AuthResult>> Handle(SignUpCommand command, CancellationToken ct)
+        {
+            var email = command.Email.Trim().ToLower();
 
-            var newUser = new User
+            var existingUser = await _userRepository.GetByEmailAsync(email, ct);
+
+            if (existingUser != null && existingUser.EmailVerified)
+                return Results<AuthResult>.Fail("Email is already used");
+
+            if (command.Password != command.ConfirmPassword)
+                return Results<AuthResult>.Fail("Passwords do not match");
+
+            User user;
+
+            if (existingUser != null)
             {
-                Name = command.Name,
-                Email = command.Email,
-                Password = _passwordHasher.Hash(command.Password)
-            };
+                if (existingUser.EmailVerified)
+                    return Results<AuthResult>.Fail("Email is already used");
 
+                existingUser.Name = command.Name;
+                existingUser.Password = _passwordHasher.Hash(command.Password);
 
-            await _userRepository.AddAsync(newUser);
+                await _userRepository.UpdateAsync(existingUser, ct);
 
-            return Results<UserDTO>.Ok(_mapper.Map<UserDTO>(newUser));
+                user = existingUser;
+            }
+            else
+            {
+                user = new User
+                {
+                    Name = command.Name,
+                    Email = email,
+                    Password = _passwordHasher.Hash(command.Password),
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _userRepository.AddAsync(user, ct);
+            }
+
+            var code = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
+
+            await _emailVerificationRepository.DeleteByUserIdAsync(user.UserId, ct);
+
+            await _emailVerificationRepository.AddEmailVerificationAsync(new EmailVerification
+            {
+                UserId = user.UserId,
+                Code = code,
+            }, ct);
+
+            await _emailService.SendEmailAsync(
+                email,
+                "TaskHub",
+                $"Your code: {code}",
+                ct
+            );
+
+            return Results<AuthResult>.Ok(new AuthResult());
         }
     }
 }

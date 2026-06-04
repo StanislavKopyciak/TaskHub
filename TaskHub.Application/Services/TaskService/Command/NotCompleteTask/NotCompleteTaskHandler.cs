@@ -8,16 +8,16 @@ namespace TaskHub.Application.Services.TaskService.Command.NotCompleteTask
 {
     public class NotCompleteTaskHandler
     {
-        private readonly ITaskRepository<TaskItem> _taskRepository;
+        private readonly ITaskRepository _taskRepository;
 
-        public NotCompleteTaskHandler(ITaskRepository<TaskItem> taskRepository)
+        public NotCompleteTaskHandler(ITaskRepository taskRepository)
         {
             _taskRepository = taskRepository;
         }
 
         public async Task<bool> Handle(NotCompleteTaskCommand request, Results<TaskItemDTO> results, CancellationToken cancellationToken)
         {
-            var task = await _taskRepository.GetByIdAsync(request.TaskId);
+            var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
             if (task == null)
                 return false;
 
@@ -26,8 +26,8 @@ namespace TaskHub.Application.Services.TaskService.Command.NotCompleteTask
                 return false;
             }
 
-                task.State = State.NotCompleted;
-            await _taskRepository.UpdateAsync(task.Id, task);
+            task.State = State.NotCompleted;
+            await _taskRepository.UpdateAsync(task, cancellationToken);
 
             return true;
         }

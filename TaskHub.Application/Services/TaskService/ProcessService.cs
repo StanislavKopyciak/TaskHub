@@ -6,16 +6,16 @@ namespace TaskHub.Application.Services.TaskService
 {
     public class ProcessService
     {
-        private readonly ITaskRepository<TaskItem> _taskRepository;
+        private readonly ITaskRepository _taskRepository;
 
-        public ProcessService(ITaskRepository<TaskItem> taskRepository)
+        public ProcessService(ITaskRepository taskRepository)
         {
             _taskRepository = taskRepository;
         }
 
-        public async Task UpdateTaskStateAsync(Guid userId)
+        public async Task UpdateTaskStateAsync(Guid userId, CancellationToken ct)
         {
-            var tasks = await _taskRepository.GetAllByUserIdAsync(userId);
+            var tasks = await _taskRepository.GetAllByUserIdAsync(userId, ct);
 
             var activeTasks = tasks
                 .Where(t => t.State != State.Completed && t.State != State.NotCompleted);
@@ -28,7 +28,7 @@ namespace TaskHub.Application.Services.TaskService
                 if (task.DeadLine <= DateTime.Now)
                 {
                     task.State = State.NotCompleted;
-                    await _taskRepository.UpdateAsync(task.Id, task);
+                    await _taskRepository.UpdateAsync(task, ct);
                 }
             }
         }

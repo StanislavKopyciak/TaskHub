@@ -2,9 +2,8 @@
 
 namespace TaskHub.Application.Interfaces
 {
-    public interface IUserRepository<T> : IRepository<T> where T : User
+    public interface IUserRepository : IRepository<User>
     {
-        Task<T> GetByEmailAndPasswordAsync(string email, string password);
-        Task<T> GetByEmailAsync(string email);
+        Task<User> GetByEmailAsync(string email, CancellationToken ct);
     }
 }

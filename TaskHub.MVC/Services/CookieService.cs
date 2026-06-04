@@ -1,11 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using TaskHub.Application.DTO.User;
-using Microsoft.AspNetCore.Mvc;
-
-namespace TaskHub.Infrastructure.HttpCookieService
+﻿namespace TaskHub.MVC.HttpCookieService
 {
     public class CookieService
     {
@@ -16,35 +9,37 @@ namespace TaskHub.Infrastructure.HttpCookieService
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task SetCookieAsync(UserDTO user)
+        public void SetCookie(string token)
         {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim("Name", user.Name ?? string.Empty),
-                new Claim("Email", user.Email ?? string.Empty)
-            };
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null)
+                throw new InvalidOperationException("No active HttpContext.");
 
-            var identity = new ClaimsIdentity(claims, "CookieAuth");
-            var principal = new ClaimsPrincipal(identity);
-
-            var authProperties = new AuthenticationProperties 
-            {
-                IsPersistent = true,
-            };
-
-            await _httpContextAccessor.HttpContext!.SignInAsync(
-                "CookieAuth",
-                new ClaimsPrincipal(identity),
-                authProperties
-            );
+            httpContext.Response.Cookies.Append(
+                "jwt",
+                token,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Path = "/",
+                    Expires = DateTimeOffset.Now.AddDays(1)
+                });
         }
 
-        public async Task SignOutAsync()
+        public void SignOut()
         {
-            await _httpContextAccessor.HttpContext!.SignOutAsync(
-                "CookieAuth"
-            );
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null)
+                throw new InvalidOperationException("No active HttpContext.");
+
+            httpContext.Response.Cookies.Delete("jwt", new CookieOptions
+            {
+                Path = "/",
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
         }
     }
 }

@@ -1,0 +1,62 @@
+﻿@model TaskHub.Application.DTO.User.VerifyEmailDTO
+
+<div style="display:flex; flex-direction:column; align-items:center; gap:15px; margin-top:50px;">
+
+    <h2>Підтвердження email</h2>
+
+    <form id="verifyForm" method="post" style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+
+        <input asp-for="Email" type="hidden" />
+
+        <input asp-for="Code"
+               placeholder="Введіть код"
+               class="form-control"
+               style="width:250px;" />
+
+        <span id="CodeError" class="text-danger"></span>
+
+        <span id="GeneralError" class="text-danger"></span>
+
+        <button type="submit" class="btn btn-primary" style="width:250px;">
+            Підтвердити
+        </button>
+
+        <button type="button" id="resendBtn" class="btn btn-link">
+            Надіслати код ще раз
+        </button>
+
+    </form>
+</div>
+
+<script>
+        document.getElementById("verifyForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        document.getElementById("CodeError").textContent = "";
+        document.getElementById("GeneralError").textContent = "";
+
+        const formData = new FormData(this);
+
+        const response = await fetch("/Auth/VerifyEmail", {
+            method: "POST",
+            body: formData,
+            credentials: "same-origin"
+        });
+
+        const result = await response.json();
+
+        if (result.success === true) {
+            window.location.href = result.redirectUrl;
+            return;
+        }
+
+        if (result.errors) {
+            result.errors.forEach(err => {
+                if (err.property === "Code")
+                    document.getElementById("CodeError").textContent = err.message;
+                else
+                    document.getElementById("GeneralError").textContent = err.message;
+            });
+        }
+    });
+</script>

@@ -2,7 +2,7 @@
 {
     public enum State
     {
-        NotCompleted,//ще не розпочато
-        Completed //виконано
+        NotCompleted = 0,
+        Completed = 1 
     }
 }

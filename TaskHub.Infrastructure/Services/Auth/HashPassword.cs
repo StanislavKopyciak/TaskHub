@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using TaskHub.Application.Interfaces;
 using TaskHub.Core.Model;
 
-namespace TaskHub.Application.Services.UserService.Auth
+namespace TaskHub.Infrastructure.Services.Auth
 {
     public class PasswordHasher : IPasswordHasher
     {

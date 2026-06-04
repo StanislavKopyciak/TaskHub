@@ -26,6 +26,14 @@ namespace TaskHub.Infrastructure.Data.Configurations
             builder.HasMany(u => u.Tasks)
                 .WithOne(t => t.User)
                 .HasForeignKey(t => t.UserId);
+
+            builder.Property(u => u.EmailVerified)
+                .IsRequired()
+                .HasDefaultValue(false);    
+
+            builder.Property(u => u.CreatedAt)
+                .IsRequired()
+                .HasDefaultValueSql("GETUTCDATE()");
         }
     }
 }

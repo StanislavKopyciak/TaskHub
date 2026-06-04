@@ -9,9 +9,9 @@ namespace TaskHub.Application.Services.TaskService.Command.UpdateTask
 {
     public class UpdateTaskHandler : IRequestHandler<UpdateTaskCommand, Results<TaskItemDTO>>
     {
-        private readonly ITaskRepository<TaskItem> _taskRepository;
+        private readonly ITaskRepository _taskRepository;
         private readonly IMapper _mapper;
-        public UpdateTaskHandler(ITaskRepository<TaskItem> taskRepository, IMapper mapper)
+        public UpdateTaskHandler(ITaskRepository taskRepository, IMapper mapper)
         {
             _taskRepository = taskRepository;
             _mapper = mapper;
@@ -19,7 +19,7 @@ namespace TaskHub.Application.Services.TaskService.Command.UpdateTask
 
         public async Task<Results<TaskItemDTO>> Handle(UpdateTaskCommand command, CancellationToken ct)
         {
-            var task = await _taskRepository.GetByIdAsync(command.Id);
+            var task = await _taskRepository.GetByIdAsync(command.Id, ct);
 
 
             if (task == null)
@@ -39,7 +39,7 @@ namespace TaskHub.Application.Services.TaskService.Command.UpdateTask
             task.Priority = command.Priority;
             task.UpdatedAt = DateTime.Now;
 
-            await _taskRepository.UpdateAsync(command.Id, task);
+            await _taskRepository.UpdateAsync(task, ct);
 
             return Results<TaskItemDTO>.Ok(_mapper.Map<TaskItemDTO>(task));
         }
