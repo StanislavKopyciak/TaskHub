@@ -29,7 +29,7 @@
 </div>
 
 <script>
-        document.getElementById("verifyForm").addEventListener("submit", async function (e) {
+document.getElementById("verifyForm").addEventListener("submit", async function (e) {
         e.preventDefault();
 
         document.getElementById("CodeError").textContent = "";
@@ -59,4 +59,20 @@
             });
         }
     });
+
+document.getElementById("resendBtn").addEventListener("click", async function () {
+
+    const response = await fetch("/Auth/ResendCode", {
+        method: "POST",
+        credentials: "same-origin"
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+        alert("Код надіслано повторно");
+    } else {
+        alert(result.error ?? "Помилка");
+    }
+});
 </script>

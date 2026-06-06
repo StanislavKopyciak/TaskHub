@@ -33,7 +33,7 @@ namespace TaskHub.Infrastructure.Data.Configurations
 
             builder.Property(u => u.CreatedAt)
                 .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()");
+                .HasDefaultValueSql("NOW()");
         }
     }
 }

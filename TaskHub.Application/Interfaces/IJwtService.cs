@@ -2,6 +2,7 @@
 {
     public interface IJwtService
     {
-        string GenerateToken(Guid userId);
+        string GenerateAccessToken(Guid userId);
+        bool ValidateAccessToken(string token);
     }
 }

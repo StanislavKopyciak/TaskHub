@@ -31,8 +31,7 @@
 
         const response = await fetch("/Auth/SignIn", {
             method: "POST",
-            body: formData,
-            credentials: "same-origin"
+            body: formData
         });
 
         const result = await response.json();

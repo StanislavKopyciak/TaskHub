@@ -9,6 +9,6 @@
         
         public bool IsUsed { get; set; } = false;
 
-        public DateOnly CreatedAt { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

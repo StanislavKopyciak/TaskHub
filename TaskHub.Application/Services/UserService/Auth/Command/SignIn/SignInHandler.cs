@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using TaskHub.Application.Common;
 using TaskHub.Application.DTO.User;
 using TaskHub.Application.Interfaces;
@@ -10,14 +9,23 @@ namespace TaskHub.Application.Services.UserService.Auth.Command.SignIn
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
-        private readonly IMapper _mapper;
-       private readonly IJwtService _jwtService;
-        public SignInHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IMapper mapper, IJwtService jwtService)
+        private readonly IRefreshTokenRepository _refreshRepository; 
+        private readonly IJwtService _jwtService;
+        private readonly IRefreshTokenService _refreshTokenService;
+        public SignInHandler(
+            IUserRepository userRepository, 
+            IPasswordHasher passwordHasher, 
+            IJwtService jwtService, 
+            IRefreshTokenRepository 
+            refreshRepository, 
+            IRefreshTokenService refreshTokenService
+            )
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
-            _mapper = mapper;
             _jwtService = jwtService;
+            _refreshRepository = refreshRepository;
+            _refreshTokenService = refreshTokenService;
         }
 
         public async Task<Results<AuthResult>> Handle(SignInCommand command, CancellationToken ct)
@@ -48,12 +56,21 @@ namespace TaskHub.Application.Services.UserService.Auth.Command.SignIn
                 return Results<AuthResult>.Fail("Email is not verified");
             }
 
-            var token = _jwtService.GenerateToken(user.UserId);
+            var accesToken = _jwtService.GenerateAccessToken(user.UserId);
+            var refreshToken = _refreshTokenService.GenerateRefreshToken();
+
+            var refresh = new Core.Entities.RefreshToken
+            {
+                UserId = user.UserId,
+                Token = refreshToken
+            };
+
+            _ = await _refreshRepository.AddAsync(refresh, ct);
 
             return Results<AuthResult>.Ok(new AuthResult
             {
-                Token = token,
-                User = _mapper.Map<UserDTO>(user)
+                RefreshToken = refreshToken,
+                AccessToken = accesToken
             });
         }
     }

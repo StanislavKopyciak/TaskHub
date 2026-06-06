@@ -3,10 +3,13 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography;
 using TaskHub.Application.DTO.User;
+using TaskHub.Application.Services.UserService.Auth.Command.ResendCode;
 using TaskHub.Application.Services.UserService.Auth.Command.SignIn;
 using TaskHub.Application.Services.UserService.Auth.Command.SignUp;
 using TaskHub.Application.Services.UserService.Auth.Command.VerifyEmail;
+using TaskHub.Core.Entities;
 using TaskHub.MVC.HttpCookieService;
 
 namespace TaskHub.MVC.Controllers
@@ -74,6 +77,8 @@ namespace TaskHub.MVC.Controllers
                 });
             }
 
+            _cookieService.SetVerifyCookie(result.Value);
+
 
             return Json(new
             {
@@ -116,9 +121,10 @@ namespace TaskHub.MVC.Controllers
                 });
             }
 
-            if (result.Value?.Token != null)
+            if (result.Value?.AccessToken != null && result.Value?.RefreshToken != null)
             {
-                _cookieService.SetCookie(result.Value.Token);
+                _cookieService.SetAccessCookie(result.Value.AccessToken);
+                _cookieService.SetRefreshCookie(result.Value.RefreshToken);
             }
 
             return Json(new
@@ -132,6 +138,25 @@ namespace TaskHub.MVC.Controllers
         public async Task<IActionResult> VerifyEmail(VerifyEmailDTO dto)
         {
             var command = _mapper.Map<VerifyEmailCommand>(dto);
+
+            var verifyCookie = _cookieService.GetVerifyToken();
+
+            if (!Guid.TryParse(verifyCookie, out var userId))
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = new[]
+                    {
+                        new {
+                            property = "Code",
+                            message = "Verification session expired"
+                        }
+                    }
+                });
+            }
+
+            command.Id = userId;
 
             var result = await _mediator.Send(command);
 
@@ -150,10 +175,14 @@ namespace TaskHub.MVC.Controllers
                 });
             }
 
-            if (result.Value?.Token != null)
+            _cookieService.ClearVerifyCookie();
+
+            if (result.Value?.AccessToken != null && result.Value?.RefreshToken != null)
             {
-                _cookieService.SetCookie(result.Value.Token);
+                _cookieService.SetAccessCookie(result.Value.AccessToken);
+                _cookieService.SetRefreshCookie(result.Value.RefreshToken);
             }
+
 
             return Json(new
             {
@@ -162,12 +191,47 @@ namespace TaskHub.MVC.Controllers
             });
         }
 
+        [HttpPost("/Auth/ResendCode")]
+        public async Task<IActionResult> ResendCode()
+        {
+            var verifyCookie = _cookieService.GetVerifyToken();
+
+            if (!Guid.TryParse(verifyCookie ?? "", out var userId))
+                return Json(new { success = false, error = "Session expired" });
+
+            var command = new ResendCodeCommand
+            {
+                UserId = userId
+            };
+
+            var result = await _mediator.Send(command);
+
+            if (!result.Success)
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = new[]
+                    {
+                        new {
+                            property = "Code",
+                            message = result.Error
+                        }
+                    }
+                });
+            }
+
+            return Json(new
+            {
+                success = true
+            });
+        }
 
 
         [HttpPost("/Auth/SignOut")]
         public new IActionResult SignOut()
         {
-            _cookieService.SignOut();
+            _cookieService.ClearAuthCookie();
             return RedirectToAction("SignIn", "Auth");
         }
     }

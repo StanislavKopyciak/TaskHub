@@ -8,12 +8,12 @@ using TaskHub.Core.Entities;
 
 namespace TaskHub.Application.Services.UserService.Auth.Command.SignUp
 {
-    public class SignUpHandler : IRequestHandler<SignUpCommand, Results<AuthResult>>
+    public class SignUpHandler : IRequestHandler<SignUpCommand, Results<Guid>>
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IMapper _mapper;
-        private readonly IJwtService _jwtService;
+        private readonly IRefreshTokenService _jwtService;
         private readonly IEmailService _emailService;
         private readonly IEmailVerificationRepository _emailVerificationRepository;
 
@@ -22,7 +22,7 @@ namespace TaskHub.Application.Services.UserService.Auth.Command.SignUp
             IUserRepository userRepository, 
             IPasswordHasher passwordHasher,
             IMapper mapper,
-            IJwtService jwtService,
+            IRefreshTokenService jwtService,
             IEmailService emailService,
             IEmailVerificationRepository emailVerificationRepository
             )
@@ -35,24 +35,24 @@ namespace TaskHub.Application.Services.UserService.Auth.Command.SignUp
             _emailVerificationRepository = emailVerificationRepository;
             }
 
-        public async Task<Results<AuthResult>> Handle(SignUpCommand command, CancellationToken ct)
+        public async Task<Results<Guid>> Handle(SignUpCommand command, CancellationToken ct)
         {
             var email = command.Email.Trim().ToLower();
 
             var existingUser = await _userRepository.GetByEmailAsync(email, ct);
 
             if (existingUser != null && existingUser.EmailVerified)
-                return Results<AuthResult>.Fail("Email is already used");
+                return Results<Guid>.Fail("Email is already used");
 
             if (command.Password != command.ConfirmPassword)
-                return Results<AuthResult>.Fail("Passwords do not match");
+                return Results<Guid>.Fail("Passwords do not match");
 
             User user;
 
             if (existingUser != null)
             {
                 if (existingUser.EmailVerified)
-                    return Results<AuthResult>.Fail("Email is already used");
+                    return Results<Guid>.Fail("Email is already used");
 
                 existingUser.Name = command.Name;
                 existingUser.Password = _passwordHasher.Hash(command.Password);
@@ -91,7 +91,7 @@ namespace TaskHub.Application.Services.UserService.Auth.Command.SignUp
                 ct
             );
 
-            return Results<AuthResult>.Ok(new AuthResult());
+            return Results<Guid>.Ok(user.UserId);
         }
     }
 }

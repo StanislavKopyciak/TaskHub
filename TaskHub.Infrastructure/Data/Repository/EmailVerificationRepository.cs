@@ -24,9 +24,9 @@ namespace TaskHub.Infrastructure.Data.Repository
             await _context.EmailVerifications.Where(ev => ev.UserId == id).ExecuteDeleteAsync(ct);
         }
 
-        public async Task<EmailVerification?> GetByCodeAsync(string code, CancellationToken ct)
+        public async Task<EmailVerification?> GetByCodeAndIdAsync(string code, Guid id, CancellationToken ct)
         {
-            return await _context.EmailVerifications.FirstOrDefaultAsync(ev => ev.Code == code, ct);
+            return await _context.EmailVerifications.FirstOrDefaultAsync(ev => ev.Code == code && ev.UserId == id, ct);
         }
 
         public async Task MarkAsUsed(Guid id, CancellationToken ct)
@@ -35,5 +35,11 @@ namespace TaskHub.Infrastructure.Data.Repository
                 .Where(ev => ev.Id == id)
                 .ExecuteUpdateAsync(ev => ev.SetProperty(e => e.IsUsed, true), ct);
         }
+
+        public async Task<EmailVerification?> GetLastByUserIdAsync(Guid userId, CancellationToken ct)
+        {
+            return await _context.EmailVerifications.FirstOrDefaultAsync(ev => ev.UserId == userId, ct);
+        }
+
     }
 }

@@ -10,12 +10,12 @@ namespace TaskHub.Infrastructure.Services.Auth
     public class JwtService : IJwtService
     {
         private readonly IConfiguration _configuration;
-        public JwtService(IConfiguration configuration) 
+        public JwtService(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
-        public string GenerateToken(Guid userId)
+        public string GenerateAccessToken(Guid userId)
         {
             var secret = _configuration["JWT:Secret"] ?? throw new Exception("Secret key not found");
 
@@ -25,11 +25,11 @@ namespace TaskHub.Infrastructure.Services.Auth
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new System.Security.Claims.ClaimsIdentity(new[]
+                Subject = new ClaimsIdentity(new[]
                 {
-                    new System.Security.Claims.Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
                 }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddMinutes(15),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -37,6 +37,34 @@ namespace TaskHub.Infrastructure.Services.Auth
             var tokenString = tokenHandler.WriteToken(token);
 
             return tokenString;
+        }
+
+        public bool ValidateAccessToken(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                return false;
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var key = Encoding.ASCII.GetBytes(_configuration["JWT:Secret"]);
+
+            try
+            {
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                }, out _);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

@@ -12,6 +12,7 @@ using TaskHub.Application.Services.TaskService.Command.UpdateTask;
 using TaskHub.Application.Services.TaskService.Query.GetAllByUserIdAndState;
 using TaskHub.Application.Services.TaskService.Query.GetAllTasks;
 using TaskHub.Application.Services.TaskService.Query.GetTask;
+using TaskHub.Application.Services.UserService.Auth.Command.ResendCode;
 using TaskHub.Application.Services.UserService.Auth.Command.SignIn;
 using TaskHub.Application.Services.UserService.Auth.Command.SignUp;
 using TaskHub.Core.Model;
@@ -19,6 +20,7 @@ using TaskHub.Infrastructure.Data;
 using TaskHub.Infrastructure.Data.Repository;
 using TaskHub.Infrastructure.Services.Auth;
 using TaskHub.MVC.HttpCookieService;
+using TaskHub.MVC.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,10 +38,12 @@ builder.Services.AddDbContext<TaskHubContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found")));
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddTransient<ITaskRepository, TaskRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddHttpClient<IEmailService, EmailService>(client =>
 {
     client.Timeout = TimeSpan.FromSeconds(10);
@@ -73,6 +77,7 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblyContaining<GetAllTasksQuery>();
     cfg.RegisterServicesFromAssemblyContaining<CompleteTaskCommand>();
     cfg.RegisterServicesFromAssemblyContaining<GetAllByUserIdAndStateQuery>();
+    cfg.RegisterServicesFromAssemblyContaining<ResendCodeCommand>();
 });
 
 var jwtKey = builder.Configuration["JWT:Secret"] ?? throw new Exception("Secret key not found");
@@ -125,6 +130,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
+app.UseMiddleware<JwtRefreshMiddleware>();
 app.UseAuthorization();
 
 app.MapControllerRoute(

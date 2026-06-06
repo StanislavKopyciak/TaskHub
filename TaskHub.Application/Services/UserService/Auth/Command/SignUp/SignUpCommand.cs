@@ -4,7 +4,7 @@ using TaskHub.Application.DTO.User;
 
 namespace TaskHub.Application.Services.UserService.Auth.Command.SignUp
 {
-    public class SignUpCommand : IRequest<Results<AuthResult>>
+    public class SignUpCommand : IRequest<Results<Guid>>
     {
         public string? Name { get; set; }
         public string Email { get; set; } = string.Empty;
