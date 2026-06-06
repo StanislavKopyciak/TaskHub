@@ -8,12 +8,32 @@ TaskHub — це навчальний проєкт для керування з�
 
 ## 🚀 Основний функціонал
 
-- Авторизація користувачів
-- Створення та редагування завдань
-- Перегляд списку завдань
-- Фільтрація завдань за статусом (Completed / NotCompleted)
-- Відмітка завдання як виконаного
-- Розділення логіки за шарами (Clean Architecture)
+### Авторизація та безпека
+
+* Реєстрація користувачів
+* Вхід у систему
+* Верифікація Email через Gmail API
+* Повторна відправка коду підтвердження Email
+* JWT Authentication
+* Refresh Token Authentication
+* Автоматичне оновлення Access Token через Middleware
+* Зберігання токенів у HttpOnly Cookies
+
+### Керування завданнями
+
+* Створення завдань
+* Редагування завдань
+* Видалення завдань
+* Перегляд списку завдань
+* Фільтрація завдань за статусом (Completed / NotCompleted)
+* Відмітка завдання як виконаного або невиконаного
+
+### Архітектура
+
+* Розділення логіки за принципами Clean Architecture
+* CQRS для обробки команд та запитів
+* Валідація даних через FluentValidation
+* Dependency Injection
 
 ---
 
@@ -21,56 +41,103 @@ TaskHub — це навчальний проєкт для керування з�
 
 Проєкт побудований з використанням принципів **Clean Architecture**:
 
-- **TaskHub.Core**  
-  Доменно-орієнтований шар: сутності, enum-и, інтерфейси
+### TaskHub.Core
 
-- **TaskHub.Application**  
-  Бізнес-логіка, CQRS (Commands / Queries), Handlers, Validators, DTO
+Доменно-орієнтований шар:
 
-- **TaskHub.Infrastructure**  
-  Робота з базою даних, Entity Framework Core, репозиторії
+* Entities
+* Enums
+* Domain Models
 
-- **TaskHub.MVC**  
-  ASP.NET Core MVC, контролери та Razor Views
+### TaskHub.Application
+
+Шар бізнес-логіки:
+
+* Commands & Queries
+* Handlers
+* DTO
+* Validators
+* Interfaces
+
+### TaskHub.Infrastructure
+
+Інфраструктурний шар:
+
+* Entity Framework Core
+* SQL Server
+* Репозиторії
+* Email Service (Gmail API)
+* JWT & Refresh Token Services
+
+### TaskHub.MVC
+
+Презентаційний шар:
+
+* ASP.NET Core MVC
+* Controllers
+* Razor Views
+* Middleware
+* Cookie Management
 
 ---
 
 ## 🛠 Використані технології
 
-- **C# / .NET**
-- **ASP.NET Core MVC**
-- **Entity Framework Core**
-- **CQRS (Command / Query Responsibility Segregation)**
-- **MediatR**
-- **FluentValidation**
-- **AutoMapper**
-- **SQL Server**
-- **Git & GitHub**
+* C#
+* .NET
+* ASP.NET Core MVC
+* Entity Framework Core
+* SQL Server
+* MediatR
+* AutoMapper
+* FluentValidation
+* JWT Authentication
+* Gmail API
+* Cookie Authentication
+* LINQ
+* Git & GitHub
 
 ---
 
 ## 📦 Основні патерни та підходи
 
-- CQRS (Commands / Queries)
-- Repository Pattern
-- Dependency Injection
-- Separation of Concerns
-- Fluent Validation для валідації даних
-- MediatR як реалізація Mediator Pattern
+* Clean Architecture
+* CQRS (Command / Query Responsibility Segregation)
+* Repository Pattern
+* Mediator Pattern (MediatR)
+* Dependency Injection
+* Middleware Pipeline
+* Fluent Validation
+* Separation of Concerns
+
+---
+
+## 🔐 Реалізовані механізми безпеки
+
+* JWT Access Tokens
+* Refresh Tokens
+* Email Verification
+* HttpOnly Cookies
+* Automatic Token Refresh
+* Password Validation
+* Access Control для користувацьких даних
 
 ---
 
 ## 🧪 Статус проєкту
 
 Проєкт знаходиться у стадії активної розробки та використовується з навчальною метою для закріплення навичок роботи з:
-- архітектурою .NET застосунків
-- патернами проєктування
-- роботою з базою даних
-- Git та GitHub
+
+* архітектурою .NET застосунків
+* патернами проєктування
+* ASP.NET Core MVC
+* Entity Framework Core
+* Authentication & Authorization
+* роботою з базою даних
+* Git та GitHub
 
 ---
 
 ## 📄 Автор
 
 **Stanislav Kopyciak**
-
