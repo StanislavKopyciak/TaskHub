@@ -1,0 +1,30 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DefaultConnection: ${ConnectionStrings__DefaultConnection}
+      JWT__Secret: ${JWT__Secret}
+      Gmail__client_id: ${Gmail__client_id}
+      Gmail__client_secret: ${Gmail__client_secret}
+      Gmail__refresh_token: ${Gmail__refresh_token}
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: TaskHub
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12233
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./data:/var/lib/postgresql/data

@@ -22,7 +22,11 @@ using TaskHub.Infrastructure.Services.Auth;
 using TaskHub.MVC.HttpCookieService;
 using TaskHub.MVC.Middleware;
 
+DotNetEnv.Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddSession(options =>
 {
@@ -113,6 +117,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+using var scope = app.Services.CreateScope();
+
+var db = scope.ServiceProvider.GetRequiredService<TaskHubContext>();
+
+db.Database.Migrate();
 
 app.MapGet("/", () => Results.Redirect("/Task/Index"));
 
